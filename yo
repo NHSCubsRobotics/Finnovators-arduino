@@ -1,0 +1,275 @@
+
+int incomingByte = 0;
+int identifierByte = 0; // for incoming serial data
+int magnitudeByte = 0;
+int directionByte = 0;
+
+int SYNC_MARKER = 128;
+
+int RRH_FLL_MOTOR_MAG = 0;
+int RRL_FLH_MOTOR_MAG = 0;
+int FRH_RLL_MOTOR_MAG = 0;
+int FRL_RLH_MOTOR_MAG = 0;
+
+float yawByte = 0;
+
+double yawValue = 0;
+
+int F_LEFT_MOTOR_PWM = 3;
+int F_RIGHT_MOTOR_PWM = 5;
+int UP_MOTOR_PWM = 7;
+
+int F_LEFT_MOTOR_DIGITAL = 27;
+int F_RIGHT_MOTOR_DIGITAL = 31;
+int UP_MOTOR_DIGITAL = 35;
+
+int R_LEFT_MOTOR_PWM = 2;
+int R_RIGHT_MOTOR_PWM = 4;
+int UP_MOTOR_PWM2 = 6;
+
+int R_LEFT_MOTOR_DIGITAL = 26;
+int R_RIGHT_MOTOR_DIGITAL = 30;
+int UP_MOTOR_DIGITAL2 = 34;
+
+float waneForce = 0;
+int forceAngle = 0;
+float vectorScaler = .022;
+
+
+
+void setup() {
+  // put your setup code here, to run once:
+ Serial.begin(19200);
+ 
+ pinMode(F_LEFT_MOTOR_PWM, OUTPUT);   //opens pins for motors
+ pinMode(F_RIGHT_MOTOR_PWM, OUTPUT);
+ pinMode(UP_MOTOR_PWM, OUTPUT);
+ 
+ pinMode(F_LEFT_MOTOR_DIGITAL, OUTPUT);
+ pinMode(F_RIGHT_MOTOR_DIGITAL, OUTPUT);
+ pinMode(UP_MOTOR_DIGITAL, OUTPUT);
+
+ pinMode(R_LEFT_MOTOR_PWM, OUTPUT);   //opens second set of pins for motors
+ pinMode(R_RIGHT_MOTOR_PWM, OUTPUT);
+ pinMode(UP_MOTOR_PWM, OUTPUT);
+ 
+ pinMode(R_LEFT_MOTOR_DIGITAL, OUTPUT);
+ pinMode(R_RIGHT_MOTOR_DIGITAL, OUTPUT);
+ pinMode(UP_MOTOR_DIGITAL, OUTPUT);
+}
+
+void loop() {
+  
+RRH_FLL_MOTOR_MAG = 0;
+RRL_FLH_MOTOR_MAG = 0;
+FRH_RLL_MOTOR_MAG = 0;
+FRL_RLH_MOTOR_MAG = 0;
+yawValue = 0;
+
+ if (Serial.available() > 3) {
+    // read the incoming byte:
+    incomingByte = Serial.read();
+      identifierByte = Serial.read();
+      magnitudeByte = Serial.read();
+      directionByte = Serial.read();
+      Serial.println("=========");
+      Serial.println(incomingByte, DEC); 
+      
+   if (incomingByte == SYNC_MARKER) {
+      Serial.println(identifierByte, DEC);
+      Serial.println(magnitudeByte, DEC);
+      Serial.println(directionByte, DEC);
+      Serial.println("=========");
+
+     if (identifierByte == 0) {    //control motors:
+        
+       if(directionByte >= 45 && directionByte <= 225) {
+        //digitalWrite(F_RIGHT_MOTOR_DIGITAL, LOW);
+        //digitalWrite(R_LEFT_MOTOR_DIGITAL, HIGH);
+         if (directionByte >= 90 && directionByte <= 180){
+          //analogWrite(F_RIGHT_MOTOR_PWM, magnitudeByte);
+          //analogWrite(R_LEFT_MOTOR_PWM, magnitudeByte);
+          FRL_RLH_MOTOR_MAG = magnitudeByte;
+         }
+         else if (directionByte < 90){
+            forceAngle = directionByte-45;
+            waneForce = forceAngle*magnitudeByte*vectorScaler;
+            //analogWrite(F_RIGHT_MOTOR_PWM, waneForce);
+            //analogWrite(R_LEFT_MOTOR_PWM, waneForce);
+            FRL_RLH_MOTOR_MAG = waneForce;
+         }
+         else if (directionByte > 180){
+            forceAngle = abs (directionByte-225);
+            waneForce = forceAngle*magnitudeByte*vectorScaler;
+            //analogWrite(F_RIGHT_MOTOR_PWM, waneForce);
+            //analogWrite(R_LEFT_MOTOR_PWM, waneForce);
+            FRL_RLH_MOTOR_MAG = waneForce;
+         }
+        }
+        
+      if(directionByte > 225 || directionByte < 45) {
+       //digitalWrite(F_RIGHT_MOTOR_DIGITAL, HIGH);
+       //digitalWrite(R_LEFT_MOTOR_DIGITAL, LOW);
+        if (directionByte >= 270 && directionByte <= 360){
+         //analogWrite(F_RIGHT_MOTOR_PWM, magnitudeByte);
+         //analogWrite(R_LEFT_MOTOR_PWM, magnitudeByte);
+         FRH_RLL_MOTOR_MAG = magnitudeByte;
+        }
+        else if (directionByte < 45){
+           forceAngle = abs (directionByte-45);
+           waneForce = forceAngle*magnitudeByte*vectorScaler;
+           //analogWrite(F_RIGHT_MOTOR_PWM, waneForce);
+           //analogWrite(R_LEFT_MOTOR_PWM, waneForce);
+           FRH_RLL_MOTOR_MAG = waneForce;
+        }
+        else if (directionByte < 270){
+           forceAngle = directionByte-225;
+           waneForce = forceAngle*magnitudeByte*vectorScaler;
+           //analogWrite(F_RIGHT_MOTOR_PWM, waneForce);
+           //analogWrite(R_LEFT_MOTOR_PWM, waneForce); 
+           FRH_RLL_MOTOR_MAG = waneForce;
+        }
+      }     
+               
+      if(directionByte >= 315 || directionByte <= 135) {
+       //digitalWrite(R_RIGHT_MOTOR_DIGITAL, LOW);
+       //digitalWrite(F_LEFT_MOTOR_DIGITAL, HIGH);
+        if (directionByte >= 0 && directionByte <= 90){
+         //analogWrite(R_RIGHT_MOTOR_PWM, magnitudeByte);
+         //analogWrite(F_LEFT_MOTOR_PWM, magnitudeByte);
+         RRH_FLL_MOTOR_MAG = magnitudeByte;
+        }
+        else if (directionByte >= 315){
+           forceAngle = directionByte-315;
+           waneForce = forceAngle*magnitudeByte*vectorScaler;
+           //analogWrite(R_RIGHT_MOTOR_PWM, waneForce);
+           //analogWrite(F_LEFT_MOTOR_PWM, waneForce);
+           RRH_FLL_MOTOR_MAG = waneForce;
+        }
+        else if (directionByte > 90){
+           forceAngle = abs (directionByte-135);
+           waneForce = forceAngle*magnitudeByte*vectorScaler;
+           //analogWrite(R_RIGHT_MOTOR_PWM, waneForce);
+           //analogWrite(F_LEFT_MOTOR_PWM, waneForce); 
+           RRH_FLL_MOTOR_MAG = waneForce;    
+        }       
+      }
+      if(directionByte > 135 && directionByte < 315) {
+       //digitalWrite(R_RIGHT_MOTOR_DIGITAL, LOW);
+       //digitalWrite(F_LEFT_MOTOR_DIGITAL, HIGH);
+        if (directionByte >= 180 && directionByte <= 270){
+         //analogWrite(R_RIGHT_MOTOR_PWM, magnitudeByte);
+         //analogWrite(F_LEFT_MOTOR_PWM, magnitudeByte);
+         RRL_FLH_MOTOR_MAG = directionByte;
+        }
+        else if (directionByte > 270){
+           forceAngle = abs(directionByte-315);
+           waneForce = forceAngle*magnitudeByte*vectorScaler;
+           //analogWrite(R_RIGHT_MOTOR_PWM, waneForce);
+           //analogWrite(F_LEFT_MOTOR_PWM, waneForce);
+           RRL_FLH_MOTOR_MAG = waneForce;
+        }
+        else if (directionByte < 180){
+           forceAngle = directionByte-135;
+           waneForce = forceAngle*magnitudeByte*vectorScaler;
+           //analogWrite(R_RIGHT_MOTOR_PWM, waneForce);
+           //analogWrite(F_LEFT_MOTOR_PWM, waneForce);   
+           RRL_FLH_MOTOR_MAG = waneForce;  
+        }       
+      }
+
+if(yawByte != 0) { yawValue = (yawByte/100);}
+
+
+      if (FRL_RLH_MOTOR_MAG != 0){
+       digitalWrite(F_RIGHT_MOTOR_DIGITAL, LOW);
+       digitalWrite(R_LEFT_MOTOR_DIGITAL, HIGH);
+        if (yawByte == 0){
+         analogWrite(F_RIGHT_MOTOR_PWM, FRL_RLH_MOTOR_MAG);
+         analogWrite(R_LEFT_MOTOR_PWM, FRL_RLH_MOTOR_MAG);
+        }
+        else if (yawByte > 0){       
+         analogWrite(F_RIGHT_MOTOR_PWM, FRL_RLH_MOTOR_MAG );
+         analogWrite(R_LEFT_MOTOR_PWM, (FRL_RLH_MOTOR_MAG* yawValue));          
+        }
+        else if (yawByte < 0){
+         analogWrite(F_RIGHT_MOTOR_PWM, (FRL_RLH_MOTOR_MAG * yawValue));
+         analogWrite(R_LEFT_MOTOR_PWM, FRL_RLH_MOTOR_MAG); 
+        }
+      } 
+      if (FRH_RLL_MOTOR_MAG != 0){
+       digitalWrite(F_RIGHT_MOTOR_DIGITAL, HIGH);
+       digitalWrite(R_LEFT_MOTOR_DIGITAL, LOW);
+        if (yawByte == 0){
+         analogWrite(F_RIGHT_MOTOR_PWM, FRH_RLL_MOTOR_MAG);
+         analogWrite(R_LEFT_MOTOR_PWM, FRH_RLL_MOTOR_MAG);
+        }
+        else if (yawByte > 0){       
+         analogWrite(F_RIGHT_MOTOR_PWM, (FRH_RLL_MOTOR_MAG * yawValue));
+         analogWrite(R_LEFT_MOTOR_PWM, FRH_RLL_MOTOR_MAG);          
+        }
+        else if (yawByte < 0){
+         analogWrite(F_RIGHT_MOTOR_PWM, FRH_RLL_MOTOR_MAG);
+         analogWrite(R_LEFT_MOTOR_PWM, (FRH_RLL_MOTOR_MAG * yawValue)); 
+        }
+     } 
+     
+      if (RRL_FLH_MOTOR_MAG != 0){
+       digitalWrite(R_RIGHT_MOTOR_DIGITAL, LOW);
+       digitalWrite(F_LEFT_MOTOR_DIGITAL, HIGH);
+        if (yawByte == 0){
+         analogWrite(R_RIGHT_MOTOR_PWM, RRL_FLH_MOTOR_MAG);
+         analogWrite(F_LEFT_MOTOR_PWM, RRL_FLH_MOTOR_MAG);
+        }
+        else if (yawByte > 0){       
+         analogWrite(R_RIGHT_MOTOR_PWM, (RRL_FLH_MOTOR_MAG * yawValue));
+         analogWrite(F_LEFT_MOTOR_PWM, RRL_FLH_MOTOR_MAG);          
+        }
+        else if (yawByte < 0){
+         analogWrite(R_RIGHT_MOTOR_PWM, RRL_FLH_MOTOR_MAG);
+         analogWrite(F_LEFT_MOTOR_PWM, (RRL_FLH_MOTOR_MAG * yawValue)); 
+      }   
+     }
+      if (RRH_FLL_MOTOR_MAG != 0){
+       digitalWrite(R_RIGHT_MOTOR_DIGITAL, HIGH);
+       digitalWrite(F_LEFT_MOTOR_DIGITAL, LOW);
+        if (yawByte == 0){
+         analogWrite(R_RIGHT_MOTOR_PWM, RRH_FLL_MOTOR_MAG);
+         analogWrite(F_LEFT_MOTOR_PWM, RRH_FLL_MOTOR_MAG);
+        }
+        else if (yawByte > 0){       
+         analogWrite(R_RIGHT_MOTOR_PWM, (RRH_FLL_MOTOR_MAG * yawValue));
+         analogWrite(F_LEFT_MOTOR_PWM, RRH_FLL_MOTOR_MAG);          
+        }
+        else if (yawByte < 0){
+         analogWrite(R_RIGHT_MOTOR_PWM, RRH_FLL_MOTOR_MAG);
+         analogWrite(F_LEFT_MOTOR_PWM, (RRH_FLL_MOTOR_MAG * yawValue)); 
+      }
+     }
+     if (FRL_RLH_MOTOR_MAG == 0 && FRH_RLL_MOTOR_MAG == 0 && RRL_FLH_MOTOR_MAG == 0 && RRH_FLL_MOTOR_MAG == 0 && yawByte !=0){
+       if (yawByte > 0) {
+        digitalWrite(F_RIGHT_MOTOR_DIGITAL, LOW);
+        digitalWrite(R_RIGHT_MOTOR_DIGITAL, HIGH);
+        digitalWrite(F_LEFT_MOTOR_DIGITAL, HIGH);
+        digitalWrite(R_LEFT_MOTOR_DIGITAL, LOW);
+        analogWrite(F_RIGHT_MOTOR_DIGITAL, magnitudeByte);
+        analogWrite(R_RIGHT_MOTOR_DIGITAL, magnitudeByte);
+        analogWrite(F_LEFT_MOTOR_DIGITAL, magnitudeByte);
+        analogWrite(R_LEFT_MOTOR_DIGITAL, magnitudeByte);
+       }
+       
+       if (yawByte < 0) {
+        digitalWrite(F_RIGHT_MOTOR_DIGITAL, HIGH);
+        digitalWrite(R_RIGHT_MOTOR_DIGITAL, LOW);
+        digitalWrite(F_LEFT_MOTOR_DIGITAL, LOW);
+        digitalWrite(R_LEFT_MOTOR_DIGITAL, HIGH);
+        analogWrite(F_RIGHT_MOTOR_DIGITAL, magnitudeByte);
+        analogWrite(R_RIGHT_MOTOR_DIGITAL, magnitudeByte);
+        analogWrite(F_LEFT_MOTOR_DIGITAL, magnitudeByte);
+        analogWrite(R_LEFT_MOTOR_DIGITAL, magnitudeByte);
+       }
+     }
+   }
+ }
+}
+}
