@@ -1,0 +1,65 @@
+/*  This code will take values from 2 potentiometers, which act as values for an x and y axis, and find the magnitude (between 0 and 100) and direction (degrees) of the vector created between the origin and the point named by the potentiometers. 
+ *  (applying the use of an x-y coordinate system)  
+*/
+
+#include <math.h>
+
+float xPot = A0; //connect x potentiometer to A0 pin
+float yPot = A1; //connect y potentiometer to A0 pin
+float xPValue = 0;
+float yPValue = 0;
+float MagX = 0;
+float MagY = 0;
+float SqMagX = 0;
+float SqMagY = 0;
+
+float teah = .09775; //transform 0-1023 value to 0-100 value
+float radianValue = 57.296;
+
+float AddSqs = 0;
+double magHyp = 0;
+float dir = 0;
+double dir2 = 0;
+double dir3 = 0;
+
+
+void setup() {
+ Serial.begin(9600);
+  
+
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+ xPValue = analogRead(xPot); //read x potentiometer value
+ MagX = map(xPValue,0,1023,-100,100);//transform 0-1023 value to 0-100 value
+ 
+ yPValue = analogRead(yPot); //read y potentiameter value
+ MagY = map(yPValue,0,1023,-100,100); //transform 0-1023 value to 0-100 value
+ 
+ Serial.print(MagX);
+ Serial.print("   ");
+ Serial.println(MagY);
+ 
+ SqMagX = MagX*MagX; //square x value for use in finding hypotneuse
+ //Serial.println(SqMagX);
+ 
+ SqMagY = MagY*MagY; //square y value for use in finding hypotenuse
+ 
+ AddSqs = (SqMagX+SqMagY); //add squares of x and y for use in finding hypotenuse
+ Serial.println (AddSqs);
+ 
+ magHyp = sqrt (AddSqs); //find hypotenuse using pythagorean's theorem
+ Serial.println (magHyp);
+ 
+ dir = MagX/magHyp; //divide X 'leg' of triangle by hypotenuse 'leg' of triangle to find ratio for inverse cosine 
+ dir2 = acos(dir); //find inverse cosine
+ dir3 = dir2*radianValue; //equation returns radian value, so multiply by 57.296, for this is how many degrees are in a radian
+ 
+ if (MagY < 0)dir3=360-dir3; //to use full 360 degrees, subtract the angle from 360 if the y-value is positve. This actually works, lol, I didn't expect it to
+ 
+ Serial.println(dir3);
+ 
+ 
+ delay(1000);
+}
