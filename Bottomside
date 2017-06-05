@@ -84,96 +84,64 @@ yawValue = 0;
      if (identifierByte == 0) {    //control motors:
         
        if(directionByte >= 45 && directionByte <= 225) {
-        //digitalWrite(F_RIGHT_MOTOR_DIGITAL, LOW);
-        //digitalWrite(R_LEFT_MOTOR_DIGITAL, HIGH);
          if (directionByte >= 90 && directionByte <= 180){
-          //analogWrite(F_RIGHT_MOTOR_PWM, magnitudeByte);
-          //analogWrite(R_LEFT_MOTOR_PWM, magnitudeByte);
           FRL_RLH_MOTOR_MAG = magnitudeByte;
          }
          else if (directionByte < 90){
             forceAngle = directionByte-45;
             waneForce = forceAngle*magnitudeByte*vectorScaler;
-            //analogWrite(F_RIGHT_MOTOR_PWM, waneForce);
-            //analogWrite(R_LEFT_MOTOR_PWM, waneForce);
             FRL_RLH_MOTOR_MAG = waneForce;
          }
          else if (directionByte > 180){
             forceAngle = abs (directionByte-225);
             waneForce = forceAngle*magnitudeByte*vectorScaler;
-            //analogWrite(F_RIGHT_MOTOR_PWM, waneForce);
-            //analogWrite(R_LEFT_MOTOR_PWM, waneForce);
             FRL_RLH_MOTOR_MAG = waneForce;
          }
         }
         
       if(directionByte > 225 || directionByte < 45) {
-       //digitalWrite(F_RIGHT_MOTOR_DIGITAL, HIGH);
-       //digitalWrite(R_LEFT_MOTOR_DIGITAL, LOW);
         if (directionByte >= 270 && directionByte <= 360){
-         //analogWrite(F_RIGHT_MOTOR_PWM, magnitudeByte);
-         //analogWrite(R_LEFT_MOTOR_PWM, magnitudeByte);
          FRH_RLL_MOTOR_MAG = magnitudeByte;
         }
         else if (directionByte < 45){
            forceAngle = abs (directionByte-45);
            waneForce = forceAngle*magnitudeByte*vectorScaler;
-           //analogWrite(F_RIGHT_MOTOR_PWM, waneForce);
-           //analogWrite(R_LEFT_MOTOR_PWM, waneForce);
            FRH_RLL_MOTOR_MAG = waneForce;
         }
         else if (directionByte < 270){
            forceAngle = directionByte-225;
            waneForce = forceAngle*magnitudeByte*vectorScaler;
-           //analogWrite(F_RIGHT_MOTOR_PWM, waneForce);
-           //analogWrite(R_LEFT_MOTOR_PWM, waneForce); 
            FRH_RLL_MOTOR_MAG = waneForce;
         }
       }     
                
       if(directionByte >= 315 || directionByte <= 135) {
-       //digitalWrite(R_RIGHT_MOTOR_DIGITAL, LOW);
-       //digitalWrite(F_LEFT_MOTOR_DIGITAL, HIGH);
         if (directionByte >= 0 && directionByte <= 90){
-         //analogWrite(R_RIGHT_MOTOR_PWM, magnitudeByte);
-         //analogWrite(F_LEFT_MOTOR_PWM, magnitudeByte);
          RRH_FLL_MOTOR_MAG = magnitudeByte;
         }
         else if (directionByte >= 315){
            forceAngle = directionByte-315;
            waneForce = forceAngle*magnitudeByte*vectorScaler;
-           //analogWrite(R_RIGHT_MOTOR_PWM, waneForce);
-           //analogWrite(F_LEFT_MOTOR_PWM, waneForce);
            RRH_FLL_MOTOR_MAG = waneForce;
         }
         else if (directionByte > 90){
            forceAngle = abs (directionByte-135);
            waneForce = forceAngle*magnitudeByte*vectorScaler;
-           //analogWrite(R_RIGHT_MOTOR_PWM, waneForce);
-           //analogWrite(F_LEFT_MOTOR_PWM, waneForce); 
            RRH_FLL_MOTOR_MAG = waneForce;    
         }       
       }
       if(directionByte > 135 && directionByte < 315) {
-       //digitalWrite(R_RIGHT_MOTOR_DIGITAL, LOW);
-       //digitalWrite(F_LEFT_MOTOR_DIGITAL, HIGH);
         if (directionByte >= 180 && directionByte <= 270){
-         //analogWrite(R_RIGHT_MOTOR_PWM, magnitudeByte);
-         //analogWrite(F_LEFT_MOTOR_PWM, magnitudeByte);
          RRL_FLH_MOTOR_MAG = directionByte;
         }
         else if (directionByte > 270){
            forceAngle = abs(directionByte-315);
            waneForce = forceAngle*magnitudeByte*vectorScaler;
-           //analogWrite(R_RIGHT_MOTOR_PWM, waneForce);
-           //analogWrite(F_LEFT_MOTOR_PWM, waneForce);
            RRL_FLH_MOTOR_MAG = waneForce;
         }
         else if (directionByte < 180){
            forceAngle = directionByte-135;
            waneForce = forceAngle*magnitudeByte*vectorScaler;
-           //analogWrite(R_RIGHT_MOTOR_PWM, waneForce);
-           //analogWrite(F_LEFT_MOTOR_PWM, waneForce);   
            RRL_FLH_MOTOR_MAG = waneForce;  
         }       
       }
